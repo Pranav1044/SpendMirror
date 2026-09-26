@@ -1,0 +1,661 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}</style><style>:root{color-scheme:light dark;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}}:root[data-theme="dark"]{color-scheme:dark;--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}:root[data-theme="light"]{color-scheme:light}@media print{:root,:root[data-theme="dark"]{color-scheme:light;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}}body{background:var(--md-bg);color:var(--md-text);max-width:720px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:10px;font:14px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;overflow-wrap:break-word}body>:first-child{margin-top:0}h1,h2,h3,h4,h5,h6{margin:6px 0 0;line-height:1.25;font-weight:600;text-wrap:balance}h1{font-size:1.35em}h2{font-size:1.15em;color:var(--md-muted)}h3,h4,h5,h6{font-size:1em}p,ul,ol,blockquote,table,pre,hr{margin:0}strong{font-weight:600}a{color:var(--md-link);text-decoration:none}a:hover{text-decoration:underline}ul,ol{display:flex;flex-direction:column;gap:6px;padding-left:22px}ul{list-style:disc}ol{list-style:decimal}:is(li,td,th)>*+:is(p,ul,ol,blockquote){margin-top:6px}blockquote{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--md-rule);padding-left:10px;color:var(--md-muted)}:not(pre)>code{background:var(--md-fill);padding:1px 3px;border-radius:4px;font:.92em 'SF Mono',ui-monospace,Menlo,Consolas,monospace}a>code{background:none;color:inherit}pre{background:var(--md-fill);padding:10px 12px;border-radius:6px;overflow-x:auto;font:12px/1.5 'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-block:4px}pre code{background:none;padding:0;font:inherit}table{width:100%;border-collapse:separate;border-spacing:2px;font:inherit}th,td{padding:6px 8px;border-radius:3px;text-align:left;vertical-align:top}th{background:var(--md-fill-strong);font-weight:600}td{background:var(--md-fill)}:is(th,td) :not(pre)>code{background:transparent}hr{border:0;border-top:1px solid var(--md-rule-strong);margin-block:10px}img{max-width:100%;height:auto;border-radius:4px}</style>
+</head><body>
+<h1>Expense Dashboard: Product Requirements Document</h1>
+<p><strong>Status:</strong> Draft v0.5<br>
+<strong>Date:</strong> September 24, 2026</p>
+<h2>1. Overview</h2>
+<p>A personal finance web app that connects to a user's Gmail, automatically finds receipts, bank alerts, and payment confirmations, extracts structured expense data with a Python-based processing pipeline, and shows spending in a clean dashboard.</p>
+<p><strong>Problem:</strong> Expense tracking is manual and tedious, yet most of the data already sits in the inbox as emails.</p>
+<p><strong>Goal:</strong> Turn inbox emails into an accurate, reviewable expense ledger with minimal user effort while demonstrating a real-world Python data-processing and analytics pipeline.</p>
+<hr>
+<h2>2. Goals and Non-Goals</h2>
+<h3>Goals</h3>
+<ul>
+<li>Connect Gmail with read-only access and import expense-related emails.</li>
+<li>Extract merchant, amount, currency, date, category, transaction type, and confidence automatically.</li>
+<li>Use <strong>Python + FastAPI</strong> for Gmail processing, LLM extraction, validation, normalization, deduplication, and transaction ingestion.</li>
+<li>Show monthly spend, category breakdown, trends, and a searchable transaction list.</li>
+<li>Let users correct extracted values quickly.</li>
+<li>Track extraction quality and validation outcomes so the pipeline can be evaluated.</li>
+<li>Keep the codebase clean, modular, tested, documented, and portfolio-quality.</li>
+<li>Demonstrate practical skills relevant to data analytics: data cleaning, validation, feature/field extraction, quality checks, aggregation, and analytics.</li>
+</ul>
+<h3>Non-goals (v1)</h3>
+<ul>
+<li>Bank account linking, payments, or budgeting advice.</li>
+<li>Multi-user teams or shared households.</li>
+<li>Native mobile apps (responsive web only).</li>
+<li>Support for email providers other than Gmail.</li>
+<li>Multi-currency support and PDF attachment parsing (post-MVP).</li>
+</ul>
+<hr>
+<h2>3. Target User</h2>
+<p>Individuals who receive receipts and payment alerts by email and want a spending overview without manual entry.</p>
+<hr>
+<h2>4. Functional Requirements</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F1</td>
+<td>Sign in with Google (Supabase Auth)</td>
+<td>Must</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>Connect Gmail via OAuth with <code>gmail.readonly</code> scope; disconnect and delete data at any time</td>
+<td>Must</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>Fetch candidate emails (receipts, invoices, bank/UPI/card alerts) using search filters and labels</td>
+<td>Must</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>Python service performs LLM extraction to structured JSON: merchant, amount, currency, date, category, transaction type, confidence</td>
+<td>Must</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>Validate and normalize extracted data with Python/Pydantic before database insertion</td>
+<td>Must</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>Duplicate detection using Gmail message ID and merchant + amount + date heuristics</td>
+<td>Must</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>Dashboard: total this month, month-over-month change, category chart, spending trends, recent transactions</td>
+<td>Must</td>
+</tr>
+<tr>
+<td>F8</td>
+<td>Transaction list with search (matches merchant name AND item names inside <code>line_items</code>), filter by date/category, and inline edit</td>
+<td>Must</td>
+</tr>
+<tr>
+<td>F9</td>
+<td>Review queue for low-confidence or failed-validation extractions</td>
+<td>Must</td>
+</tr>
+<tr>
+<td>F10</td>
+<td>Extraction/data-quality metrics for the pipeline, such as validation failures, review rate, duplicate rate, and field-level accuracy on the test set</td>
+<td>Should</td>
+</tr>
+<tr>
+<td>F11</td>
+<td>Custom categories and per-merchant category rules</td>
+<td>Should</td>
+</tr>
+<tr>
+<td>F12</td>
+<td>CSV export</td>
+<td>Should</td>
+</tr>
+<tr>
+<td>F13</td>
+<td>Desktop-first web layout, responsive enough not to break on a phone browser (this is a website, not a native mobile app)</td>
+<td>Must</td>
+</tr>
+<tr>
+<td>F14</td>
+<td>Dark mode</td>
+<td>Should</td>
+</tr>
+<tr>
+<td>F15</td>
+<td>Recurring-payment detection</td>
+<td>Could</td>
+</tr>
+<tr>
+<td>F16</td>
+<td>Multi-currency support (v1 is INR only)</td>
+<td>Could (post-MVP)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>5. Key User Flows</h2>
+<ol>
+<li><strong>Onboarding:</strong> Sign in with Google → grant Gmail read access → choose import range (e.g., last 90 days) → initial sync starts.</li>
+<li><strong>Sync:</strong> Python background worker/API pipeline fetches emails → filters candidates → cleans email text → extracts structured data → validates → normalizes → deduplicates → stores transactions.</li>
+<li><strong>Review:</strong> User opens the review queue and confirms or edits low-confidence items.</li>
+<li><strong>Explore:</strong> User views dashboard and filters/searches transactions.</li>
+<li><strong>Offboarding:</strong> User disconnects Gmail and deletes all stored data.</li>
+<li><strong>Pipeline evaluation:</strong> Developer runs the Python evaluation/test suite against labeled emails to measure extraction accuracy and data-quality metrics.</li>
+</ol>
+<hr>
+<h2>6. Data Model (Postgres / Supabase)</h2>
+<ul>
+<li><strong>profiles</strong>: <code>id</code>, <code>default_currency</code>, <code>created_at</code></li>
+<li><strong>gmail_connections</strong>: <code>user_id</code>, <code>encrypted_refresh_token</code>, <code>last_sync_at</code>, <code>status</code></li>
+<li><strong>transactions</strong>: <code>id</code>, <code>user_id</code>, <code>gmail_message_id</code> (unique per user), <code>merchant</code>, <code>amount</code>, <code>currency</code>, <code>txn_date</code>, <code>category_id</code>, <code>transaction_type</code>, <code>confidence</code>, <code>status</code> (auto / review / edited), <code>source_snippet</code>, <code>line_items</code> (JSONB, nullable — array of <code>{item_name, price, quantity}</code>; enables per-product search without a separate table in v1)</li>
+<li><strong>categories</strong>: <code>id</code>, <code>user_id</code> (null for defaults), <code>name</code>, <code>color</code></li>
+<li><strong>merchant_rules</strong>: <code>user_id</code>, <code>merchant_pattern</code>, <code>category_id</code></li>
+<li><strong>pipeline_runs</strong>: <code>id</code>, <code>user_id</code>, <code>started_at</code>, <code>completed_at</code>, <code>emails_scanned</code>, <code>candidates_found</code>, <code>extractions_attempted</code>, <code>validation_failures</code>, <code>duplicates_found</code>, <code>transactions_saved</code>, <code>review_items_created</code>, <code>status</code></li>
+</ul>
+<p>Row Level Security on every user-owned table: users can access only their own rows.</p>
+<hr>
+<h2>7. Architecture and Stack</h2>
+<h3>Frontend</h3>
+<ul>
+<li><strong>Next.js</strong> App Router</li>
+<li><strong>TypeScript</strong></li>
+<li>Tailwind CSS</li>
+<li>shadcn/ui</li>
+<li>Recharts</li>
+<li>Supabase client for authentication and safe user-facing database operations</li>
+</ul>
+<h3>Backend / Data Processing</h3>
+<ul>
+<li><strong>Python 3.x</strong></li>
+<li><strong>FastAPI</strong> for the backend API</li>
+<li><strong>Pydantic</strong> for strict input/output validation</li>
+<li>Gmail API client for Gmail access and email retrieval</li>
+<li>Python service owns the core processing pipeline:
+<ol>
+<li>Gmail retrieval</li>
+<li>Candidate filtering</li>
+<li>HTML-to-text cleaning</li>
+<li>LLM extraction</li>
+<li>Schema validation</li>
+<li>Normalization</li>
+<li>Confidence handling</li>
+<li>Deduplication</li>
+<li>Supabase/Postgres transaction storage</li>
+<li>Pipeline metrics/logging</li>
+</ol>
+</li>
+</ul>
+<h3>Database and Auth</h3>
+<ul>
+<li>Supabase Postgres</li>
+<li>Supabase Auth with Google</li>
+<li>Row Level Security</li>
+<li>Supabase Storage only if a later feature requires file storage</li>
+</ul>
+<h3>LLM Extraction</h3>
+<ul>
+<li>Small, fast model with structured/JSON output.</li>
+<li>Primary model can be a current Gemini Flash-tier or Claude Haiku-tier model.</li>
+<li>Stronger fallback model is used only for failed validation or low-confidence cases.</li>
+<li>Model names are configuration values, not hard-coded throughout the application.</li>
+<li>All LLM calls are isolated behind a Python service/module so the provider can be swapped.</li>
+</ul>
+<h3>Background Processing</h3>
+<p>The Python service is responsible for long-running email processing.</p>
+<p>For the portfolio MVP, use one of these approaches:</p>
+<ul>
+<li>FastAPI background task for a simple first version, or</li>
+<li>a Python worker/queue for production-style processing.</li>
+</ul>
+<p>The design should keep the processing function independent from the API route so it can later move to Celery/RQ/another queue without rewriting the extraction logic.</p>
+<h3>Hosting</h3>
+<ul>
+<li>Vercel → Next.js frontend</li>
+<li>Python FastAPI service → a Python-capable host</li>
+<li>Supabase → Postgres + Auth</li>
+<li>GitHub → source control</li>
+</ul>
+<p><strong>Important:</strong> Do not force the Python processing pipeline into Vercel serverless functions. The Next.js application and Python processing service are separate deployable components.</p>
+<hr>
+<h2>7a. Python Processing Pipeline</h2>
+<p>The Python service is the core data-processing layer of the product.</p>
+<h3>Pipeline</h3>
+<pre><code class="language-text">Gmail API
+   ↓
+Candidate Email Filter
+   ↓
+HTML/Text Cleaning
+   ↓
+LLM Extraction
+   ↓
+Pydantic Validation
+   ↓
+Normalization
+   ↓
+Confidence Check
+   ↓
+Duplicate Detection
+   ↓
+Supabase/Postgres
+   ↓
+Dashboard + Review Queue
+</code></pre>
+<h3>Python module structure</h3>
+<pre><code class="language-text">backend/
+├── app/
+│   ├── main.py
+│   ├── api/
+│   │   └── routes/
+│   ├── services/
+│   │   ├── gmail_service.py
+│   │   ├── email_filter.py
+│   │   ├── extraction_service.py
+│   │   ├── validation_service.py
+│   │   ├── normalization_service.py
+│   │   ├── deduplication_service.py
+│   │   └── transaction_service.py
+│   ├── schemas/
+│   │   └── transaction.py
+│   ├── db/
+│   │   └── supabase_client.py
+│   ├── config.py
+│   └── tests/
+└── requirements.txt
+</code></pre>
+<p>This structure is intentionally modular: each stage can be tested independently instead of putting the entire pipeline inside one FastAPI route.</p>
+<hr>
+<h2>7b. LLM Extraction Details</h2>
+<p><strong>Pipeline:</strong> Gmail search filter → rule-based pre-filter (drop newsletters and promotions) → clean to plain text → primary LLM call with strict JSON schema → Pydantic validation → fallback model if needed → normalization → dedupe → save or review.</p>
+<h3>What is sent to the LLM</h3>
+<ul>
+<li>Sender domain</li>
+<li>Subject</li>
+<li>Email date</li>
+<li>Cleaned plain-text body, HTML stripped and truncated to roughly 4,000 characters</li>
+<li>Only the minimum information needed for extraction</li>
+</ul>
+<p><strong>Never sent:</strong></p>
+<ul>
+<li>Attachments</li>
+<li>Other emails in the thread</li>
+<li>Unrelated inbox content</li>
+</ul>
+<p><strong>Not stored long-term:</strong></p>
+<ul>
+<li>Full email body</li>
+<li>Only the Gmail message ID, extracted fields, and a short snippet are saved</li>
+</ul>
+<h3>Required JSON output</h3>
+<pre><code class="language-json">{
+  &#34;is_expense&#34;: true,
+  &#34;transaction_type&#34;: &#34;debit&#34;,
+  &#34;merchant&#34;: &#34;Amazon&#34;,
+  &#34;amount&#34;: 1363.82,
+  &#34;currency&#34;: &#34;INR&#34;,
+  &#34;txn_date&#34;: &#34;2026-09-24&#34;,
+  &#34;category&#34;: &#34;Shopping&#34;,
+  &#34;confidence&#34;: 0.95,
+  &#34;line_items&#34;: [
+    {&#34;item_name&#34;: &#34;Wireless Optical Mouse&#34;, &#34;price&#34;: 499.00, &#34;quantity&#34;: 1},
+    {&#34;item_name&#34;: &#34;64GB MicroSD Card&#34;, &#34;price&#34;: 750.00, &#34;quantity&#34;: 1}
+  ]
+}
+</code></pre>
+<p><code>line_items</code> is optional — omit or leave empty for emails with no itemized breakdown (most bank/UPI alerts). Only extract it when the email body actually lists individual items (mainly e-commerce order confirmations); don't force the model to invent items for a plain debit alert.</p>
+<h3>Categories</h3>
+<p>The canonical category list is shared between the TypeScript frontend and Python backend:</p>
+<pre><code class="language-text">Food &amp; Dining
+Groceries
+Shopping
+Transport
+Bills &amp; Utilities
+Entertainment
+Health
+Travel
+Other
+</code></pre>
+<p>The Python backend must validate the category against this controlled list rather than trusting arbitrary LLM output.</p>
+<h3>Python validation rules</h3>
+<p>The backend validates:</p>
+<ul>
+<li><code>is_expense</code> is boolean</li>
+<li><code>transaction_type</code> is one of <code>debit</code>, <code>credit</code>, <code>refund</code></li>
+<li><code>merchant</code> is non-empty</li>
+<li><code>amount</code> is numeric and greater than 0</li>
+<li><code>currency</code> is a valid ISO 4217 code</li>
+<li><code>txn_date</code> is valid and not in the future</li>
+<li><code>category</code> belongs to the controlled category list</li>
+<li><code>line_items</code>, if present, is a list of objects each with a non-empty <code>item_name</code>, numeric <code>price</code> &gt;= 0, and integer <code>quantity</code> &gt;= 1; an item failing this check is dropped rather than failing the whole transaction</li>
+<li><code>confidence</code> is between 0 and 1</li>
+</ul>
+<p>Any validation failure is treated as low confidence.</p>
+<h3>Confidence handling</h3>
+<ul>
+<li><code>&gt;= 0.8</code> and validation passes → save as <code>auto</code></li>
+<li><code>&lt; 0.8</code> or validation fails → retry once with fallback model</li>
+<li>Still below <code>0.8</code> → save with <code>review</code> status and show in review queue</li>
+<li>Threshold is configurable and should be evaluated against a labeled test set</li>
+</ul>
+<p>The model's self-reported confidence is not treated as ground truth; validation and measured test-set accuracy are more important.</p>
+<hr>
+<h2>7c. Data Quality and Analytics Layer</h2>
+<p>Because this is also a portfolio project for data/analytics roles, the backend should expose measurable pipeline quality rather than treating extraction as a black box.</p>
+<p>Track:</p>
+<ul>
+<li>Total emails scanned</li>
+<li>Candidate emails identified</li>
+<li>Extraction attempts</li>
+<li>Validation failures</li>
+<li>Fallback-model usage</li>
+<li>Duplicate rate</li>
+<li>Auto-accepted transactions</li>
+<li>Review-queue rate</li>
+<li>Manual correction rate</li>
+<li>Merchant accuracy</li>
+<li>Amount accuracy</li>
+<li>Date accuracy</li>
+<li>Overall transaction-level accuracy</li>
+</ul>
+<p>The evaluation dataset should contain labeled Indian transaction emails/alerts from sources such as Amazon, Flipkart, Swiggy, Zomato, HDFC, ICICI, and UPI confirmations.</p>
+<p>These metrics should be usable for a small internal evaluation dashboard or notebook so the project demonstrates both <strong>building the pipeline</strong> and <strong>measuring whether the pipeline works</strong>.</p>
+<hr>
+<h2>8. Non-Functional Requirements</h2>
+<h3>Privacy</h3>
+<ul>
+<li>Send only minimal, filtered email text to the LLM.</li>
+<li>Do not store full email bodies.</li>
+<li>Encrypt refresh tokens at rest.</li>
+<li>Provide Gmail disconnect and data deletion.</li>
+</ul>
+<h3>Security</h3>
+<ul>
+<li>Gmail read-only scope.</li>
+<li>RLS on all user-owned Supabase tables.</li>
+<li>Secrets stored in environment variables.</li>
+<li>No tokens in client-side code.</li>
+<li>FastAPI endpoints authenticate requests before accessing user data.</li>
+<li>Service-role database credentials must never be exposed to the browser.</li>
+</ul>
+<h3>Performance</h3>
+<ul>
+<li>Dashboard loads in under 2 seconds under normal demo conditions.</li>
+<li>Initial 90-day sync should complete within a few minutes for a normal inbox subset.</li>
+<li>Long-running processing should not block a user-facing HTTP request indefinitely.</li>
+</ul>
+<h3>Accuracy</h3>
+<ul>
+<li>At least 90% correct on merchant, amount, and date for receipt-style emails in a labeled test set is the target.</li>
+<li>Accuracy should be measured rather than claimed.</li>
+</ul>
+<h3>Cost</h3>
+<ul>
+<li>Keep LLM cost per processed email low through candidate filtering and a small primary model.</li>
+<li>Use the stronger fallback model only when required.</li>
+</ul>
+<h3>Maintainability</h3>
+<ul>
+<li>Strict TypeScript on the frontend.</li>
+<li>Python type hints and Pydantic models on the backend.</li>
+<li>Unit tests for validation and deduplication.</li>
+<li>Integration tests for the extraction pipeline.</li>
+<li>README with architecture diagram and setup instructions.</li>
+<li>Environment-specific configuration.</li>
+<li>Clear separation between API routes and processing services.</li>
+</ul>
+<hr>
+<h2>9. Constraints and Risks</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gmail read scope is restricted; public launch requires Google verification and potentially a security assessment</td>
+<td>Keep the app in testing mode for the portfolio version and document this clearly</td>
+</tr>
+<tr>
+<td>LLM misreads amounts or dates</td>
+<td>Pydantic validation, confidence scores, fallback model, review queue, editable fields</td>
+</tr>
+<tr>
+<td>Email formats vary widely</td>
+<td>Start with common senders, build a labeled evaluation set, improve prompts and preprocessing iteratively</td>
+</tr>
+<tr>
+<td>Sensitive data exposure</td>
+<td>Minimal data sent to LLM, encryption, read-only access, easy disconnect/delete</td>
+</tr>
+<tr>
+<td>Python service unavailable</td>
+<td>Show sync status, keep transactions already stored, retry failed processing</td>
+</tr>
+<tr>
+<td>Duplicate emails or multiple alerts for one purchase</td>
+<td>Gmail message ID uniqueness plus merchant/amount/date deduplication</td>
+</tr>
+<tr>
+<td>LLM provider/model deprecation</td>
+<td>Keep model name in environment/config and isolate LLM calls behind one Python service</td>
+</tr>
+<tr>
+<td>Long-running sync exceeds API request limits</td>
+<td>Separate API request from background processing/worker</td>
+</tr>
+<tr>
+<td>Frontend and backend schemas drift</td>
+<td>Keep a shared documented transaction contract and validate API responses</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>10. Success Criteria for v1</h2>
+<p>v1 is done when all of these are true:</p>
+<ol>
+<li><strong>Speed to value:</strong> A user can connect Gmail and see at least 20–30 real transactions within 5 minutes.</li>
+<li><strong>Accuracy:</strong> At least 85% of transactions have merchant, amount, and date all correct; stretch goal 90%, measured on a labeled test set of at least 50 real Indian receipts and alerts.</li>
+<li><strong>Review flow:</strong> The review queue works end to end, and correcting a transaction takes only a few seconds.</li>
+<li><strong>Low manual effort:</strong> Fewer than 15% of transactions need manual correction after the queue is cleared.</li>
+<li><strong>Python pipeline:</strong> Gmail fetching, cleaning, extraction, validation, normalization, and deduplication run through the Python/FastAPI backend.</li>
+<li><strong>Data quality:</strong> Pipeline metrics are captured and can be analyzed.</li>
+<li><strong>Shipped:</strong> Publicly deployed demo plus a clean GitHub repo with README, architecture diagram, setup steps, screenshots, and known limitations.</li>
+<li><strong>Quality:</strong> Tests cover extraction validation and deduplication logic.</li>
+</ol>
+<hr>
+<h2>11. Milestones</h2>
+<h3>M1 — Week 1: Foundation</h3>
+<ul>
+<li>Next.js + TypeScript frontend</li>
+<li>Supabase project</li>
+<li>Google authentication</li>
+<li>Database schema and RLS</li>
+<li>Dashboard UI with mock data</li>
+<li>Initial FastAPI project structure</li>
+<li>Python environment and dependency management</li>
+<li>Health-check endpoint</li>
+<li>Frontend-to-FastAPI connectivity</li>
+</ul>
+<h3>M2 — Week 2: Gmail + Python ingestion</h3>
+<ul>
+<li>Gmail OAuth with <code>gmail.readonly</code></li>
+<li>Secure token handling</li>
+<li>Gmail message retrieval</li>
+<li>Candidate email filtering</li>
+<li>HTML/text cleaning</li>
+<li>Python ingestion service</li>
+<li>Store raw processing metadata needed for debugging without storing full email bodies</li>
+</ul>
+<h3>M3 — Week 3: Extraction + Data Quality</h3>
+<ul>
+<li>LLM extraction through Python</li>
+<li>Pydantic validation</li>
+<li>Merchant/category normalization</li>
+<li>Confidence handling</li>
+<li>Fallback model</li>
+<li>Duplicate detection</li>
+<li>Transaction storage</li>
+<li>Pipeline metrics</li>
+<li>Labeled evaluation dataset</li>
+<li>Accuracy evaluation</li>
+</ul>
+<h3>M4 — Week 4: Product completion</h3>
+<ul>
+<li>Review queue</li>
+<li>Inline transaction editing</li>
+<li>Dashboard with real data</li>
+<li>Search/filter</li>
+<li>Data-quality metrics view or evaluation notebook</li>
+<li>Responsive polish</li>
+<li>Tests</li>
+<li>README</li>
+<li>Architecture diagram</li>
+<li>Deployment</li>
+</ul>
+<h3>Post-MVP</h3>
+<ul>
+<li>Custom categories</li>
+<li>Merchant rules</li>
+<li>CSV export</li>
+<li>Dark mode</li>
+<li>Recurring-payment detection</li>
+<li>Multi-currency support</li>
+<li>More advanced analytics</li>
+<li>Queue-based Python worker architecture</li>
+</ul>
+<hr>
+<h2>12. Decisions for v1</h2>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Currency</td>
+<td>INR only. Multi-currency is post-MVP.</td>
+</tr>
+<tr>
+<td>Priority email types</td>
+<td>Order confirmations plus bank, UPI, and card debit alerts (Amazon, Flipkart, Swiggy, Zomato, HDFC, ICICI, etc.)</td>
+</tr>
+<tr>
+<td>Frontend language</td>
+<td>TypeScript / Next.js</td>
+</tr>
+<tr>
+<td>Core processing language</td>
+<td><strong>Python</strong></td>
+</tr>
+<tr>
+<td>Backend framework</td>
+<td><strong>FastAPI</strong></td>
+</tr>
+<tr>
+<td>Data validation</td>
+<td><strong>Pydantic</strong></td>
+</tr>
+<tr>
+<td>Database</td>
+<td>Supabase Postgres</td>
+</tr>
+<tr>
+<td>Authentication</td>
+<td>Supabase Auth + Google</td>
+</tr>
+<tr>
+<td>LLM processing</td>
+<td>Python service with provider abstraction</td>
+</tr>
+<tr>
+<td>Background processing</td>
+<td>Python worker/background job; API layer must remain separate from long-running processing</td>
+</tr>
+<tr>
+<td>PDF attachments</td>
+<td>Deferred to post-MVP</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>Next.js frontend + Python/FastAPI processing backend + Supabase database/auth</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>13. Portfolio / Data Career Value</h2>
+<p>The project should demonstrate more than frontend development.</p>
+<h3>Data Analyst skills demonstrated</h3>
+<ul>
+<li>SQL/Postgres data modeling</li>
+<li>Data cleaning and normalization</li>
+<li>Data validation</li>
+<li>Exploratory analysis of transaction data</li>
+<li>KPI calculation</li>
+<li>Spending trend and category analysis</li>
+<li>Data-quality measurement</li>
+<li>Dashboarding</li>
+<li>CSV/data export</li>
+<li>Business-facing insights</li>
+</ul>
+<h3>Python / Data Engineering skills demonstrated</h3>
+<ul>
+<li>FastAPI</li>
+<li>API design</li>
+<li>ETL-style pipeline development</li>
+<li>Gmail API integration</li>
+<li>Pydantic/schema validation</li>
+<li>Data transformation</li>
+<li>Deduplication</li>
+<li>Error handling</li>
+<li>Logging and pipeline metrics</li>
+<li>Database integration</li>
+<li>Testing</li>
+</ul>
+<h3>ML / AI skills demonstrated</h3>
+<ul>
+<li>LLM structured extraction</li>
+<li>Prompt/schema design</li>
+<li>Confidence handling</li>
+<li>Fallback strategy</li>
+<li>Evaluation dataset</li>
+<li>Precision/accuracy measurement</li>
+<li>Human-in-the-loop review</li>
+</ul>
+<p><strong>Portfolio positioning:</strong> The project is not presented as &quot;a Next.js expense tracker.&quot; It is presented as a <strong>Python-powered email-to-expense data pipeline with automated extraction, validation, deduplication, and analytics</strong>, with Next.js providing the user-facing product.</p>
+<hr>
+<h2>14. Roadmap: V1 vs. V2</h2>
+<p>To keep V1 shippable in the original timeline while still supporting product-level search and platform analytics later, scope is split as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>V1 (build now)</th>
+<th>V2 (later)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data ingestion</td>
+<td>Gmail API, read-only text parsing</td>
+<td>SMS ingestion (Android app or webhook gateway)</td>
+</tr>
+<tr>
+<td>Transaction types</td>
+<td>Digital/online spend via email (card, UPI confirmations, app stores)</td>
+<td>Direct UPI tracking via bank debit SMS</td>
+</tr>
+<tr>
+<td>Item data</td>
+<td><code>line_items</code> JSONB captured at extraction time, when the email contains them</td>
+<td>Dedicated <code>order_items</code> table, richer per-item metadata (SKU, discounts, tax breakdown)</td>
+</tr>
+<tr>
+<td>Search</td>
+<td>Basic SQL text match against <code>merchant</code> and <code>line_items</code> item names</td>
+<td>Semantic search via vector embeddings (e.g., Supabase <code>pgvector</code>), so &quot;jacket&quot; also finds &quot;coat&quot;</td>
+</tr>
+<tr>
+<td>Analytics</td>
+<td>Total spend, month-over-month change, category breakdown, top category</td>
+<td>Per-merchant profile pages (lifetime spend, order frequency, peak spending times), price-trend/inflation tracking on repeated items</td>
+</tr>
+</tbody>
+</table>
+<p>V1 does not include per-merchant profile pages, semantic search, or SMS/UPI ingestion — these are explicitly deferred, not dropped. The <code>line_items</code> column exists in V1 specifically so V2's search and analytics features can be built on top of data already being collected, without a schema migration or backfill.</p>
+
+</body></html>
