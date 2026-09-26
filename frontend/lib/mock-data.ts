@@ -362,6 +362,11 @@ export const CATEGORIES: Category[] = [
   "Other",
 ];
 
+line_items: [
+  { item_name: "Wireless Optical Mouse", price: 499.00, quantity: 1 },
+  { item_name: "64GB MicroSD Card", price: 750.00, quantity: 1 },
+]
+
 /** Category → accent color (for pie chart and badges) */
 export const CATEGORY_COLORS: Record<Category, string> = {
   "Food & Dining": "#f97316",
